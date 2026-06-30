@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+build
+coverage
+public/sw.js
+public/sw.js.map
+prisma/migrations
+*.db
+package-lock.json

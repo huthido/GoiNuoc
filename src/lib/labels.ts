@@ -52,9 +52,13 @@ export const ROLE_LABELS: Record<Role, string> = {
   ADMIN: "Quản trị",
   STAFF: "Nhân viên",
   DRIVER: "Tài xế",
+  SUPER_ADMIN: "Super Admin",
 };
 
-export const SUBSCRIPTION_FREQUENCY_LABELS: Record<SubscriptionFrequency, string> = {
+export const SUBSCRIPTION_FREQUENCY_LABELS: Record<
+  SubscriptionFrequency,
+  string
+> = {
   WEEKLY: "Hàng tuần",
   BIWEEKLY: "2 tuần/lần",
   MONTHLY: "Hàng tháng",

@@ -8,11 +8,21 @@ export function startSubscriptionScheduler(): void {
 
   const tick = async () => {
     try {
-      const { runDueSubscriptions } = await import("@/lib/subscriptions-engine");
+      const { runDueSubscriptions } =
+        await import("@/lib/subscriptions-engine");
       const r = await runDueSubscriptions();
-      if (r.created > 0) console.log(`[scheduler] Đã tạo ${r.created} đơn định kỳ (xử lý ${r.processed}).`);
+      if (r.created > 0)
+        console.log(
+          `[scheduler] Đã tạo ${r.created} đơn định kỳ (xử lý ${r.processed}).`,
+        );
     } catch (e) {
       console.error("[scheduler] lỗi:", e);
+      try {
+        const { logError } = await import("@/lib/error-log");
+        await logError(e, { source: "scheduler" });
+      } catch {
+        // bỏ qua
+      }
     }
   };
 

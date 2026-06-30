@@ -5,7 +5,11 @@ import { AdminNav } from "@/components/admin/AdminNav";
 import { LogoutButton } from "@/components/LogoutButton";
 import { ROLE_LABELS } from "@/lib/labels";
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const user = await requireUser(["ADMIN", "STAFF"]);
   const alsoDriver = user.roles.includes("DRIVER");
 
@@ -32,7 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </header>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 md:flex-row">
-        <AdminNav />
+        <AdminNav superAdmin={user.roles.includes("SUPER_ADMIN")} />
         <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>

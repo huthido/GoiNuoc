@@ -13,12 +13,24 @@ describe("roles (đa vai trò)", () => {
 
   it("rolesToCsv: round-trip + chuẩn hóa", () => {
     expect(rolesToCsv(["DRIVER", "ADMIN"])).toBe("ADMIN,DRIVER");
-    expect(parseRoles(rolesToCsv(["CUSTOMER", "DRIVER"]))).toEqual(["CUSTOMER", "DRIVER"]);
+    expect(parseRoles(rolesToCsv(["CUSTOMER", "DRIVER"]))).toEqual([
+      "CUSTOMER",
+      "DRIVER",
+    ]);
   });
 
   it("hasAnyRole: giao nhau", () => {
     expect(hasAnyRole(["ADMIN", "DRIVER"], ["DRIVER"])).toBe(true);
     expect(hasAnyRole(["ADMIN", "DRIVER"], ["ADMIN", "STAFF"])).toBe(true);
     expect(hasAnyRole(["CUSTOMER"], ["ADMIN", "STAFF"])).toBe(false);
+  });
+
+  it("SUPER_ADMIN bao hàm quyền ADMIN/STAFF", () => {
+    expect(hasAnyRole(["SUPER_ADMIN"], ["ADMIN"])).toBe(true);
+    expect(hasAnyRole(["SUPER_ADMIN"], ["STAFF"])).toBe(true);
+    expect(hasAnyRole(["SUPER_ADMIN"], ["SUPER_ADMIN"])).toBe(true);
+    // nhưng không tự nhiên thành CUSTOMER/DRIVER
+    expect(hasAnyRole(["SUPER_ADMIN"], ["CUSTOMER"])).toBe(false);
+    expect(hasAnyRole(["SUPER_ADMIN"], ["DRIVER"])).toBe(false);
   });
 });

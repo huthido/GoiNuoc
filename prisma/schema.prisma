@@ -172,3 +172,21 @@ model PushSubscription {
   auth      String
   createdAt DateTime @default(now())
 }
+
+// Nhật ký lỗi hệ thống — chỉ SUPER_ADMIN được xem.
+model ErrorLog {
+  id        String   @id @default(cuid())
+  level     String   @default("ERROR") // ERROR | WARN | INFO
+  source    String? // request | client | scheduler | cron | action
+  message   String
+  stack     String?
+  digest    String?
+  url       String?
+  method    String?
+  userId    String?
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([resolved])
+}

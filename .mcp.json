@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "goinuoc-admin": {
+      "command": "npx",
+      "args": ["tsx", "mcp/server.ts"],
+      "env": {
+        "DATABASE_URL": "file:./prisma/dev.db"
+      }
+    }
+  }
+}

@@ -4,10 +4,16 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcryptjs";
 import { priceOrder, type PricingLine } from "../src/lib/domain/pricing";
 import { bottleMovementFromItems } from "../src/lib/domain/bottles";
-import type { OrderStatus, PaymentMethod, PaymentStatus } from "../src/lib/domain/types";
+import type {
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+} from "../src/lib/domain/types";
 
 const prisma = new PrismaClient({
-  adapter: new PrismaBetterSqlite3({ url: process.env.DATABASE_URL ?? "file:./prisma/dev.db" }),
+  adapter: new PrismaBetterSqlite3({
+    url: process.env.DATABASE_URL ?? "file:./prisma/dev.db",
+  }),
 });
 
 const DAY = 86_400_000;
@@ -32,25 +38,106 @@ async function main() {
 
   // --- Khu vực giao ---
   const z1 = await prisma.zone.create({
-    data: { name: "Quận 1 · 3 · 5", shippingFee: 10000, freeShipThreshold: 150000 },
+    data: {
+      name: "Quận 1 · 3 · 5",
+      shippingFee: 10000,
+      freeShipThreshold: 150000,
+    },
   });
   const z2 = await prisma.zone.create({
     data: { name: "Thủ Đức", shippingFee: 20000, freeShipThreshold: 250000 },
   });
   const z3 = await prisma.zone.create({
-    data: { name: "Bình Thạnh · Gò Vấp", shippingFee: 15000, freeShipThreshold: 200000 },
+    data: {
+      name: "Bình Thạnh · Gò Vấp",
+      shippingFee: 15000,
+      freeShipThreshold: 200000,
+    },
   });
 
   // --- Sản phẩm ---
   const productData = [
-    { sku: "BINH-NM-20", name: "Bình 20L Tinh khiết (nhà máy)", type: "BINH_20L", unit: "bình", price: 25000, depositPrice: 40000, isReturnable: true, stock: 500, description: "Nước tinh khiết thương hiệu nhà máy, bình úp 20L." },
-    { sku: "BINH-LAVIE-20", name: "Bình 20L Lavie", type: "BINH_20L", unit: "bình", price: 55000, depositPrice: 50000, isReturnable: true, stock: 200 },
-    { sku: "BINH-AQUA-20", name: "Bình 20L Aquafina", type: "BINH_20L", unit: "bình", price: 60000, depositPrice: 50000, isReturnable: true, stock: 150 },
-    { sku: "THUNG-500-24", name: "Thùng 500ml × 24 chai", type: "THUNG_CHAI", unit: "thùng", price: 90000, depositPrice: 0, isReturnable: false, stock: 300 },
-    { sku: "THUNG-350-24", name: "Thùng 350ml × 24 chai", type: "THUNG_CHAI", unit: "thùng", price: 80000, depositPrice: 0, isReturnable: false, stock: 250 },
-    { sku: "THUNG-1500-12", name: "Thùng 1.5L × 12 chai", type: "THUNG_CHAI", unit: "thùng", price: 110000, depositPrice: 0, isReturnable: false, stock: 180 },
-    { sku: "THUNG-5L-4", name: "Thùng 5L × 4 bình", type: "THUNG_CHAI", unit: "thùng", price: 95000, depositPrice: 0, isReturnable: false, stock: 120 },
-    { sku: "CHAI-500", name: "Chai 500ml lẻ", type: "CHAI_LE", unit: "chai", price: 5000, depositPrice: 0, isReturnable: false, stock: 1000 },
+    {
+      sku: "BINH-NM-20",
+      name: "Bình 20L Tinh khiết (nhà máy)",
+      type: "BINH_20L",
+      unit: "bình",
+      price: 25000,
+      depositPrice: 40000,
+      isReturnable: true,
+      stock: 500,
+      description: "Nước tinh khiết thương hiệu nhà máy, bình úp 20L.",
+    },
+    {
+      sku: "BINH-LAVIE-20",
+      name: "Bình 20L Lavie",
+      type: "BINH_20L",
+      unit: "bình",
+      price: 55000,
+      depositPrice: 50000,
+      isReturnable: true,
+      stock: 200,
+    },
+    {
+      sku: "BINH-AQUA-20",
+      name: "Bình 20L Aquafina",
+      type: "BINH_20L",
+      unit: "bình",
+      price: 60000,
+      depositPrice: 50000,
+      isReturnable: true,
+      stock: 150,
+    },
+    {
+      sku: "THUNG-500-24",
+      name: "Thùng 500ml × 24 chai",
+      type: "THUNG_CHAI",
+      unit: "thùng",
+      price: 90000,
+      depositPrice: 0,
+      isReturnable: false,
+      stock: 300,
+    },
+    {
+      sku: "THUNG-350-24",
+      name: "Thùng 350ml × 24 chai",
+      type: "THUNG_CHAI",
+      unit: "thùng",
+      price: 80000,
+      depositPrice: 0,
+      isReturnable: false,
+      stock: 250,
+    },
+    {
+      sku: "THUNG-1500-12",
+      name: "Thùng 1.5L × 12 chai",
+      type: "THUNG_CHAI",
+      unit: "thùng",
+      price: 110000,
+      depositPrice: 0,
+      isReturnable: false,
+      stock: 180,
+    },
+    {
+      sku: "THUNG-5L-4",
+      name: "Thùng 5L × 4 bình",
+      type: "THUNG_CHAI",
+      unit: "thùng",
+      price: 95000,
+      depositPrice: 0,
+      isReturnable: false,
+      stock: 120,
+    },
+    {
+      sku: "CHAI-500",
+      name: "Chai 500ml lẻ",
+      type: "CHAI_LE",
+      unit: "chai",
+      price: 5000,
+      depositPrice: 0,
+      isReturnable: false,
+      stock: 1000,
+    },
   ];
   await prisma.product.createMany({ data: productData });
   const products = await prisma.product.findMany();
@@ -58,20 +145,54 @@ async function main() {
 
   // --- Nhân sự ---
   const admin = await prisma.user.create({
-    data: { phone: "0900000001", name: "Quản trị viên", passwordHash, roles: "ADMIN" },
+    data: {
+      phone: "0900000001",
+      name: "Quản trị viên",
+      passwordHash,
+      roles: "ADMIN",
+    },
   });
   const staff = await prisma.user.create({
-    data: { phone: "0900000002", name: "Nhân viên CSKH", passwordHash, roles: "STAFF" },
+    data: {
+      phone: "0900000002",
+      name: "Nhân viên CSKH",
+      passwordHash,
+      roles: "STAFF",
+    },
+  });
+  // Super Admin: cao nhất, là người duy nhất xem được nhật ký lỗi.
+  await prisma.user.create({
+    data: {
+      phone: "0900000000",
+      name: "Super Admin",
+      passwordHash,
+      roles: "SUPER_ADMIN",
+    },
   });
   const driverHung = await prisma.user.create({
-    data: { phone: "0900000011", name: "Tài xế Hùng", passwordHash, roles: "DRIVER" },
+    data: {
+      phone: "0900000011",
+      name: "Tài xế Hùng",
+      passwordHash,
+      roles: "DRIVER",
+    },
   });
   const driverKhoa = await prisma.user.create({
-    data: { phone: "0900000012", name: "Tài xế Khoa", passwordHash, roles: "DRIVER" },
+    data: {
+      phone: "0900000012",
+      name: "Tài xế Khoa",
+      passwordHash,
+      roles: "DRIVER",
+    },
   });
   // Tài khoản đa vai trò: vừa quản trị vừa tài xế.
   await prisma.user.create({
-    data: { phone: "0900000003", name: "Quản lý kiêm Tài xế", passwordHash, roles: "ADMIN,DRIVER" },
+    data: {
+      phone: "0900000003",
+      name: "Quản lý kiêm Tài xế",
+      passwordHash,
+      roles: "ADMIN,DRIVER",
+    },
   });
 
   // --- Khách hàng + địa chỉ ---
@@ -106,11 +227,43 @@ async function main() {
     return { user, address };
   }
 
-  const an = await makeCustomer({ phone: "0911111111", name: "Nguyễn Văn An", line: "12 Lê Lợi, P. Bến Nghé", district: "Quận 1", zoneId: z1.id });
-  const abc = await makeCustomer({ phone: "0922222222", name: "Văn phòng ABC", line: "Tầng 4, Tòa nhà ABC, Võ Văn Ngân", district: "Thủ Đức", zoneId: z2.id, creditLimit: 5000000 });
-  const binh = await makeCustomer({ phone: "0933333333", name: "Trần Thị Bình", line: "45 Phan Đăng Lưu", district: "Bình Thạnh", zoneId: z3.id });
-  const cafe = await makeCustomer({ phone: "0944444444", name: "Quán Cà phê Sớm Mai", line: "78 Nguyễn Trãi", district: "Quận 5", zoneId: z1.id, creditLimit: 2000000 });
-  const cuong = await makeCustomer({ phone: "0955555555", name: "Lê Văn Cường", line: "20 Kha Vạn Cân", district: "Thủ Đức", zoneId: z2.id });
+  const an = await makeCustomer({
+    phone: "0911111111",
+    name: "Nguyễn Văn An",
+    line: "12 Lê Lợi, P. Bến Nghé",
+    district: "Quận 1",
+    zoneId: z1.id,
+  });
+  const abc = await makeCustomer({
+    phone: "0922222222",
+    name: "Văn phòng ABC",
+    line: "Tầng 4, Tòa nhà ABC, Võ Văn Ngân",
+    district: "Thủ Đức",
+    zoneId: z2.id,
+    creditLimit: 5000000,
+  });
+  const binh = await makeCustomer({
+    phone: "0933333333",
+    name: "Trần Thị Bình",
+    line: "45 Phan Đăng Lưu",
+    district: "Bình Thạnh",
+    zoneId: z3.id,
+  });
+  const cafe = await makeCustomer({
+    phone: "0944444444",
+    name: "Quán Cà phê Sớm Mai",
+    line: "78 Nguyễn Trãi",
+    district: "Quận 5",
+    zoneId: z1.id,
+    creditLimit: 2000000,
+  });
+  const cuong = await makeCustomer({
+    phone: "0955555555",
+    name: "Lê Văn Cường",
+    line: "20 Kha Vạn Cân",
+    district: "Thủ Đức",
+    zoneId: z2.id,
+  });
 
   const customers = [an, abc, binh, cafe, cuong];
   const zoneById = new Map([z1, z2, z3].map((z) => [z.id, z]));
@@ -125,7 +278,10 @@ async function main() {
 
   type ItemSpec = { sku: string; qty: number; returnedEmpties?: number };
   interface OrderSpec {
-    cust: { user: { id: string }; address: { id: string; zoneId: string | null } };
+    cust: {
+      user: { id: string };
+      address: { id: string; zoneId: string | null };
+    };
     items: ItemSpec[];
     status: OrderStatus;
     paymentMethod?: PaymentMethod;
@@ -135,23 +291,124 @@ async function main() {
 
   const specs: OrderSpec[] = [
     // Đã giao (cũ → mới) — phát sinh sổ vỏ + công nợ
-    { cust: an, items: [{ sku: "BINH-NM-20", qty: 2 }], status: "DELIVERED", paymentMethod: "COD", driverId: driverHung.id, daysAgo: 20 },
-    { cust: abc, items: [{ sku: "BINH-AQUA-20", qty: 5 }, { sku: "THUNG-500-24", qty: 2 }], status: "DELIVERED", paymentMethod: "DEBT", driverId: driverKhoa.id, daysAgo: 14 },
-    { cust: an, items: [{ sku: "BINH-NM-20", qty: 2, returnedEmpties: 1 }], status: "DELIVERED", paymentMethod: "COD", driverId: driverHung.id, daysAgo: 7 },
-    { cust: cafe, items: [{ sku: "BINH-LAVIE-20", qty: 3 }, { sku: "THUNG-1500-12", qty: 1 }], status: "DELIVERED", paymentMethod: "DEBT", driverId: driverHung.id, daysAgo: 5 },
+    {
+      cust: an,
+      items: [{ sku: "BINH-NM-20", qty: 2 }],
+      status: "DELIVERED",
+      paymentMethod: "COD",
+      driverId: driverHung.id,
+      daysAgo: 20,
+    },
+    {
+      cust: abc,
+      items: [
+        { sku: "BINH-AQUA-20", qty: 5 },
+        { sku: "THUNG-500-24", qty: 2 },
+      ],
+      status: "DELIVERED",
+      paymentMethod: "DEBT",
+      driverId: driverKhoa.id,
+      daysAgo: 14,
+    },
+    {
+      cust: an,
+      items: [{ sku: "BINH-NM-20", qty: 2, returnedEmpties: 1 }],
+      status: "DELIVERED",
+      paymentMethod: "COD",
+      driverId: driverHung.id,
+      daysAgo: 7,
+    },
+    {
+      cust: cafe,
+      items: [
+        { sku: "BINH-LAVIE-20", qty: 3 },
+        { sku: "THUNG-1500-12", qty: 1 },
+      ],
+      status: "DELIVERED",
+      paymentMethod: "DEBT",
+      driverId: driverHung.id,
+      daysAgo: 5,
+    },
     // Đang trong luồng xử lý
-    { cust: binh, items: [{ sku: "THUNG-350-24", qty: 1 }, { sku: "CHAI-500", qty: 4 }], status: "DELIVERING", paymentMethod: "COD", driverId: driverHung.id, daysAgo: 0 },
-    { cust: cuong, items: [{ sku: "BINH-NM-20", qty: 1 }], status: "ASSIGNED", paymentMethod: "COD", driverId: driverKhoa.id, daysAgo: 0 },
-    { cust: abc, items: [{ sku: "BINH-AQUA-20", qty: 4, returnedEmpties: 4 }], status: "ASSIGNED", paymentMethod: "DEBT", driverId: driverKhoa.id, daysAgo: 0 },
-    { cust: cafe, items: [{ sku: "BINH-LAVIE-20", qty: 2, returnedEmpties: 2 }], status: "CONFIRMED", paymentMethod: "DEBT", daysAgo: 0 },
-    { cust: binh, items: [{ sku: "THUNG-500-24", qty: 1 }], status: "CONFIRMED", paymentMethod: "COD", daysAgo: 0 },
+    {
+      cust: binh,
+      items: [
+        { sku: "THUNG-350-24", qty: 1 },
+        { sku: "CHAI-500", qty: 4 },
+      ],
+      status: "DELIVERING",
+      paymentMethod: "COD",
+      driverId: driverHung.id,
+      daysAgo: 0,
+    },
+    {
+      cust: cuong,
+      items: [{ sku: "BINH-NM-20", qty: 1 }],
+      status: "ASSIGNED",
+      paymentMethod: "COD",
+      driverId: driverKhoa.id,
+      daysAgo: 0,
+    },
+    {
+      cust: abc,
+      items: [{ sku: "BINH-AQUA-20", qty: 4, returnedEmpties: 4 }],
+      status: "ASSIGNED",
+      paymentMethod: "DEBT",
+      driverId: driverKhoa.id,
+      daysAgo: 0,
+    },
+    {
+      cust: cafe,
+      items: [{ sku: "BINH-LAVIE-20", qty: 2, returnedEmpties: 2 }],
+      status: "CONFIRMED",
+      paymentMethod: "DEBT",
+      daysAgo: 0,
+    },
+    {
+      cust: binh,
+      items: [{ sku: "THUNG-500-24", qty: 1 }],
+      status: "CONFIRMED",
+      paymentMethod: "COD",
+      daysAgo: 0,
+    },
     // Đơn mới chờ xác nhận
-    { cust: an, items: [{ sku: "BINH-NM-20", qty: 2, returnedEmpties: 2 }], status: "PENDING", paymentMethod: "COD", daysAgo: 0 },
-    { cust: cuong, items: [{ sku: "THUNG-5L-4", qty: 2 }], status: "PENDING", paymentMethod: "BANK", daysAgo: 0 },
-    { cust: cafe, items: [{ sku: "BINH-LAVIE-20", qty: 4, returnedEmpties: 3 }], status: "PENDING", paymentMethod: "DEBT", daysAgo: 0 },
+    {
+      cust: an,
+      items: [{ sku: "BINH-NM-20", qty: 2, returnedEmpties: 2 }],
+      status: "PENDING",
+      paymentMethod: "COD",
+      daysAgo: 0,
+    },
+    {
+      cust: cuong,
+      items: [{ sku: "THUNG-5L-4", qty: 2 }],
+      status: "PENDING",
+      paymentMethod: "BANK",
+      daysAgo: 0,
+    },
+    {
+      cust: cafe,
+      items: [{ sku: "BINH-LAVIE-20", qty: 4, returnedEmpties: 3 }],
+      status: "PENDING",
+      paymentMethod: "DEBT",
+      daysAgo: 0,
+    },
     // Ngoại lệ
-    { cust: binh, items: [{ sku: "THUNG-1500-12", qty: 1 }], status: "CANCELLED", paymentMethod: "COD", daysAgo: 3 },
-    { cust: cuong, items: [{ sku: "BINH-NM-20", qty: 1 }], status: "FAILED", paymentMethod: "COD", driverId: driverKhoa.id, daysAgo: 2 },
+    {
+      cust: binh,
+      items: [{ sku: "THUNG-1500-12", qty: 1 }],
+      status: "CANCELLED",
+      paymentMethod: "COD",
+      daysAgo: 3,
+    },
+    {
+      cust: cuong,
+      items: [{ sku: "BINH-NM-20", qty: 1 }],
+      status: "FAILED",
+      paymentMethod: "COD",
+      driverId: driverKhoa.id,
+      daysAgo: 2,
+    },
   ];
 
   // Xử lý theo thứ tự thời gian (cũ trước) để sổ vỏ/công nợ cộng dồn đúng.
@@ -179,7 +436,9 @@ async function main() {
       };
     });
 
-    const zone = spec.cust.address.zoneId ? zoneById.get(spec.cust.address.zoneId) : undefined;
+    const zone = spec.cust.address.zoneId
+      ? zoneById.get(spec.cust.address.zoneId)
+      : undefined;
     const priced = priceOrder({
       lines,
       shippingFee: zone?.shippingFee ?? 0,
@@ -188,7 +447,11 @@ async function main() {
 
     const delivered = spec.status === "DELIVERED";
     const isDebt = spec.paymentMethod === "DEBT";
-    const paymentStatus: PaymentStatus = delivered ? (isDebt ? "DEBT" : "PAID") : "UNPAID";
+    const paymentStatus: PaymentStatus = delivered
+      ? isDebt
+        ? "DEBT"
+        : "PAID"
+      : "UNPAID";
 
     const order = await prisma.order.create({
       data: {
@@ -204,7 +467,15 @@ async function main() {
         discount: priced.discount,
         total: priced.total,
         assignedDriverId: spec.driverId ?? null,
-        confirmedAt: ["CONFIRMED", "ASSIGNED", "DELIVERING", "DELIVERED", "FAILED"].includes(spec.status) ? ago(spec.daysAgo) : null,
+        confirmedAt: [
+          "CONFIRMED",
+          "ASSIGNED",
+          "DELIVERING",
+          "DELIVERED",
+          "FAILED",
+        ].includes(spec.status)
+          ? ago(spec.daysAgo)
+          : null,
         deliveredAt: delivered ? ago(spec.daysAgo) : null,
         createdAt: ago(spec.daysAgo),
         items: { create: itemRows },
@@ -235,7 +506,11 @@ async function main() {
           },
         });
       }
-      if (isDebt) debt.set(spec.cust.user.id, (debt.get(spec.cust.user.id) ?? 0) + priced.total);
+      if (isDebt)
+        debt.set(
+          spec.cust.user.id,
+          (debt.get(spec.cust.user.id) ?? 0) + priced.total,
+        );
     }
   }
 
@@ -252,18 +527,67 @@ async function main() {
 
   // Vài lịch đặt định kỳ mẫu (nextRunAt ở tương lai gần để không tự bắn khi seed).
   await prisma.subscription.create({
-    data: { customerId: abc.user.id, productId: bySku.get("BINH-AQUA-20")!.id, qty: 5, frequency: "WEEKLY", addressId: abc.address.id, nextRunAt: ago(-2), isActive: true },
+    data: {
+      customerId: abc.user.id,
+      productId: bySku.get("BINH-AQUA-20")!.id,
+      qty: 5,
+      frequency: "WEEKLY",
+      addressId: abc.address.id,
+      nextRunAt: ago(-2),
+      isActive: true,
+    },
   });
   await prisma.subscription.create({
-    data: { customerId: an.user.id, productId: bySku.get("BINH-NM-20")!.id, qty: 2, frequency: "BIWEEKLY", addressId: an.address.id, nextRunAt: ago(-6), isActive: true },
+    data: {
+      customerId: an.user.id,
+      productId: bySku.get("BINH-NM-20")!.id,
+      qty: 2,
+      frequency: "BIWEEKLY",
+      addressId: an.address.id,
+      nextRunAt: ago(-6),
+      isActive: true,
+    },
   });
   await prisma.subscription.create({
-    data: { customerId: cafe.user.id, productId: bySku.get("BINH-LAVIE-20")!.id, qty: 3, frequency: "WEEKLY", addressId: cafe.address.id, nextRunAt: ago(-9), isActive: false },
+    data: {
+      customerId: cafe.user.id,
+      productId: bySku.get("BINH-LAVIE-20")!.id,
+      qty: 3,
+      frequency: "WEEKLY",
+      addressId: cafe.address.id,
+      nextRunAt: ago(-9),
+      isActive: false,
+    },
+  });
+
+  // Vài nhật ký lỗi mẫu (cho trang /admin/logs của super admin).
+  await prisma.errorLog.createMany({
+    data: [
+      {
+        level: "ERROR",
+        source: "request",
+        message: "[demo] Lỗi cổng thanh toán: timeout",
+        url: "/checkout",
+        stack:
+          "Error: payment gateway timeout\n    at processPayment (server/checkout.ts:42)",
+      },
+      {
+        level: "WARN",
+        source: "scheduler",
+        message: "[demo] Bỏ qua 1 lịch định kỳ thiếu địa chỉ",
+        resolved: true,
+      },
+    ],
   });
 
   // Vài thông báo mẫu cho khách An.
   await prisma.notification.create({
-    data: { userId: an.user.id, type: "ORDER", title: "Đơn đã giao", body: "Đơn GN0003 đã giao thành công. Cảm ơn bạn!" },
+    data: {
+      userId: an.user.id,
+      type: "ORDER",
+      title: "Đơn đã giao",
+      body: "Đơn GN0003 đã giao thành công. Cảm ơn bạn!",
+    },
   });
 
   const counts = {
@@ -273,15 +597,19 @@ async function main() {
     orders: await prisma.order.count(),
     bottleTxns: await prisma.bottleTxn.count(),
     subscriptions: await prisma.subscription.count(),
+    errorLogs: await prisma.errorLog.count(),
   };
 
   console.log("✅ Seed xong:", counts);
   console.log("\n— Tài khoản demo (mật khẩu: 123456) —");
+  console.log("  Super Admin: 0900000000 (xem nhật ký lỗi)");
   console.log("  Admin   : 0900000001");
   console.log("  Nhân viên: 0900000002");
   console.log("  Admin+Tài xế: 0900000003 (đa vai trò)");
   console.log("  Tài xế  : 0900000011 (Hùng), 0900000012 (Khoa)");
-  console.log("  Khách   : 0911111111 (An), 0922222222 (VP ABC, có công nợ), 0944444444 (Cà phê)");
+  console.log(
+    "  Khách   : 0911111111 (An), 0922222222 (VP ABC, có công nợ), 0944444444 (Cà phê)",
+  );
 }
 
 main()

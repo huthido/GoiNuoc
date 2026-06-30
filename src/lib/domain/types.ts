@@ -1,6 +1,12 @@
 // Các "enum" nghiệp vụ. SQLite không có enum nên lưu String; đây là nguồn sự thật cho giá trị hợp lệ.
 
-export const ROLES = ["CUSTOMER", "ADMIN", "STAFF", "DRIVER"] as const;
+export const ROLES = [
+  "CUSTOMER",
+  "ADMIN",
+  "STAFF",
+  "DRIVER",
+  "SUPER_ADMIN",
+] as const;
 export type Role = (typeof ROLES)[number];
 
 // Đa vai trò: lưu CSV trong User.roles (SQLite không có array/enum). Token role đều là duy nhất nên không trùng substring.
@@ -15,8 +21,16 @@ export function rolesToCsv(roles: Role[]): string {
   return ROLES.filter((r) => set.has(r)).join(",");
 }
 
+export function isSuperAdmin(roles: Role[]): boolean {
+  return roles.includes("SUPER_ADMIN");
+}
+
+// SUPER_ADMIN bao hàm quyền ADMIN/STAFF -> tự thỏa mọi gate admin mà không cần sửa từng nơi.
 export function hasAnyRole(userRoles: Role[], allowed: Role[]): boolean {
-  return userRoles.some((r) => allowed.includes(r));
+  const effective = userRoles.includes("SUPER_ADMIN")
+    ? (Array.from(new Set<Role>([...userRoles, "ADMIN", "STAFF"])) as Role[])
+    : userRoles;
+  return effective.some((r) => allowed.includes(r));
 }
 
 export const ORDER_STATUSES = [
@@ -36,8 +50,17 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const PAYMENT_STATUSES = ["UNPAID", "PAID", "DEBT"] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export const PRODUCT_TYPES = ["BINH_20L", "THUNG_CHAI", "CHAI_LE", "KHAC"] as const;
+export const PRODUCT_TYPES = [
+  "BINH_20L",
+  "THUNG_CHAI",
+  "CHAI_LE",
+  "KHAC",
+] as const;
 export type ProductType = (typeof PRODUCT_TYPES)[number];
 
-export const SUBSCRIPTION_FREQUENCIES = ["WEEKLY", "BIWEEKLY", "MONTHLY"] as const;
+export const SUBSCRIPTION_FREQUENCIES = [
+  "WEEKLY",
+  "BIWEEKLY",
+  "MONTHLY",
+] as const;
 export type SubscriptionFrequency = (typeof SUBSCRIPTION_FREQUENCIES)[number];

@@ -22,6 +22,7 @@ export default async function AdminStaffPage() {
   return (
     <StaffManager
       currentUserId={me.id}
+      canManageSuper={me.roles.includes("SUPER_ADMIN")}
       users={users.map((u) => ({
         id: u.id,
         name: u.name,

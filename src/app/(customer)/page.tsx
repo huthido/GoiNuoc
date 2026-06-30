@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Droplets, Wallet } from "lucide-react";
+import { ChevronRight, Droplets, Wallet, CalendarClock } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { formatVND } from "@/lib/format";
@@ -53,6 +53,17 @@ export default async function CustomerHome() {
           <p className="text-2xl font-bold text-gray-900">{formatVND(user?.debtBalance ?? 0)}</p>
         </div>
       </div>
+
+      {/* Đặt định kỳ */}
+      <Link
+        href="/subscriptions"
+        className="flex items-center justify-between rounded-2xl bg-white p-3.5 shadow-sm active:bg-slate-50"
+      >
+        <span className="flex items-center gap-2 text-sm font-medium text-gray-800">
+          <CalendarClock className="h-5 w-5 text-brand" /> Đặt định kỳ — giao tự động theo lịch
+        </span>
+        <ChevronRight className="h-4 w-4 text-gray-300" />
+      </Link>
 
       {/* Đặt lại đơn gần nhất */}
       {reorderItems.length > 0 && (

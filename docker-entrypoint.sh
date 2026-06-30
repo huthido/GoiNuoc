@@ -38,6 +38,18 @@ if [ -z "$VAPID_PUBLIC_KEY" ] || [ -z "$VAPID_PRIVATE_KEY" ]; then
 fi
 export VAPID_SUBJECT="${VAPID_SUBJECT:-mailto:admin@goinuoc.local}"
 
+# --- CRON_SECRET bảo vệ /api/cron/* (tự sinh & lưu bền). Scheduler nội bộ không cần secret này. ---
+CRON_FILE="$DATA_DIR/.cron_secret"
+if [ -z "$CRON_SECRET" ]; then
+  if [ -f "$CRON_FILE" ]; then
+    CRON_SECRET=$(cat "$CRON_FILE")
+  else
+    CRON_SECRET=$(node -e "console.log(require('crypto').randomBytes(24).toString('hex'))")
+    printf '%s' "$CRON_SECRET" > "$CRON_FILE"
+  fi
+  export CRON_SECRET
+fi
+
 echo "[entrypoint] DATABASE_URL=$DATABASE_URL"
 echo "[entrypoint] prisma migrate deploy..."
 npx prisma migrate deploy

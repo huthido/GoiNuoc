@@ -1,4 +1,5 @@
-import { Droplets, Wallet, MapPin, Phone, User as UserIcon } from "lucide-react";
+import Link from "next/link";
+import { Droplets, Wallet, MapPin, Phone, User as UserIcon, CalendarClock, ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { formatVND, formatDateTime } from "@/lib/format";
@@ -49,6 +50,17 @@ export default async function AccountPage() {
           )}
         </div>
       </div>
+
+      {/* Đặt định kỳ */}
+      <Link
+        href="/subscriptions"
+        className="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm active:bg-slate-50"
+      >
+        <span className="flex items-center gap-2 font-medium text-gray-800">
+          <CalendarClock className="h-5 w-5 text-brand" /> Đặt định kỳ
+        </span>
+        <ChevronRight className="h-4 w-4 text-gray-300" />
+      </Link>
 
       {/* Sổ vỏ */}
       <section className="rounded-2xl bg-white p-4 shadow-sm">

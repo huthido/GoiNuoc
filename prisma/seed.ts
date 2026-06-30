@@ -246,6 +246,17 @@ async function main() {
     });
   }
 
+  // Vài lịch đặt định kỳ mẫu (nextRunAt ở tương lai gần để không tự bắn khi seed).
+  await prisma.subscription.create({
+    data: { customerId: abc.user.id, productId: bySku.get("BINH-AQUA-20")!.id, qty: 5, frequency: "WEEKLY", addressId: abc.address.id, nextRunAt: ago(-2), isActive: true },
+  });
+  await prisma.subscription.create({
+    data: { customerId: an.user.id, productId: bySku.get("BINH-NM-20")!.id, qty: 2, frequency: "BIWEEKLY", addressId: an.address.id, nextRunAt: ago(-6), isActive: true },
+  });
+  await prisma.subscription.create({
+    data: { customerId: cafe.user.id, productId: bySku.get("BINH-LAVIE-20")!.id, qty: 3, frequency: "WEEKLY", addressId: cafe.address.id, nextRunAt: ago(-9), isActive: false },
+  });
+
   // Vài thông báo mẫu cho khách An.
   await prisma.notification.create({
     data: { userId: an.user.id, type: "ORDER", title: "Đơn đã giao", body: "Đơn GN0003 đã giao thành công. Cảm ơn bạn!" },
@@ -257,6 +268,7 @@ async function main() {
     users: await prisma.user.count(),
     orders: await prisma.order.count(),
     bottleTxns: await prisma.bottleTxn.count(),
+    subscriptions: await prisma.subscription.count(),
   };
 
   console.log("✅ Seed xong:", counts);

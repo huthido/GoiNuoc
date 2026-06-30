@@ -52,9 +52,15 @@ Admin `0900000001` · Tài xế `0900000011` · Khách `0911111111`.
 docker compose up --build      # AUTH_SECRET tự sinh, mở http://localhost:3000
 ```
 
+## Đơn định kỳ (Subscription)
+- **Tự động mặc định**: bộ hẹn giờ trong tiến trình chạy mỗi 6 giờ, tự sinh đơn cho lịch đến hạn — không
+  cần cấu hình (hợp triển khai 1 instance). Tắt bằng `ENABLE_SCHEDULER=false`.
+- **Cron ngoài (tùy chọn)**: `POST /api/cron/run-subscriptions` kèm `Authorization: Bearer <CRON_SECRET>`
+  (`CRON_SECRET` tự sinh, lưu `/app/data/.cron_secret`). Có thể thêm Coolify **Scheduled Task**.
+- Admin có nút **“Chạy đơn đến hạn”** ở Quản trị → Định kỳ.
+
 ## Ghi chú
-- **Secret bền**: lưu ở `/app/data/.auth_secret` trên volume → ổn định qua restart/redeploy.
-  Đổi secret = xóa file này (sẽ sinh lại, làm mất các phiên đăng nhập hiện tại).
+- **Secret/khóa bền**: lưu trên volume `/app/data` (`.auth_secret`, `.vapid.json`, `.cron_secret`) → ổn định qua redeploy.
 - **Health check**: `GET /api/health` → `{ ok: true, db: "up" }`.
 - **Backup**: sao lưu thư mục volume `/app/data` (gồm `prod.db` + `.auth_secret`).
 - **Đổi sang Postgres**: đổi `provider` trong `prisma/schema.prisma`, dùng adapter `@prisma/adapter-pg`

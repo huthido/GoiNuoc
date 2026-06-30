@@ -1,5 +1,12 @@
 // Nhãn tiếng Việt cho hiển thị UI (không thuộc domain thuần).
-import type { OrderStatus, PaymentMethod, PaymentStatus, ProductType, Role } from "./domain/types";
+import type {
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+  ProductType,
+  Role,
+  SubscriptionFrequency,
+} from "./domain/types";
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: "Chờ xác nhận",
@@ -45,4 +52,10 @@ export const ROLE_LABELS: Record<Role, string> = {
   ADMIN: "Quản trị",
   STAFF: "Nhân viên",
   DRIVER: "Tài xế",
+};
+
+export const SUBSCRIPTION_FREQUENCY_LABELS: Record<SubscriptionFrequency, string> = {
+  WEEKLY: "Hàng tuần",
+  BIWEEKLY: "2 tuần/lần",
+  MONTHLY: "Hàng tháng",
 };

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ClipboardList, Package, Users, Truck, MapPinned, BarChart3 } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Package, Users, Truck, MapPinned, BarChart3, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const LINKS = [
@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/admin/products", label: "Sản phẩm", icon: Package },
   { href: "/admin/customers", label: "Khách hàng", icon: Users },
   { href: "/admin/drivers", label: "Tài xế", icon: Truck },
+  { href: "/admin/subscriptions", label: "Định kỳ", icon: CalendarClock },
   { href: "/admin/zones", label: "Khu vực", icon: MapPinned },
   { href: "/admin/reports", label: "Báo cáo", icon: BarChart3 },
 ];

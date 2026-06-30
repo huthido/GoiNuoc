@@ -6,7 +6,8 @@ export const metadata = { title: "Đăng nhập · Gọi Nước" };
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
-  if (user) redirect(homeFor(user.roles));
+  // Chỉ điều hướng nếu đã có vai trò; token cũ rỗng vai trò thì cho đăng nhập lại tại đây.
+  if (user && user.roles.length > 0) redirect(homeFor(user.roles));
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-sky-50 to-slate-100 p-6">

@@ -15,17 +15,29 @@ export async function subscribePush(sub: PushSubscriptionInput): Promise<ActionR
   if (!sub?.endpoint || !sub.keys?.p256dh || !sub.keys?.auth) {
     return { ok: false, error: "Dữ liệu đăng ký không hợp lệ" };
   }
-  await prisma.pushSubscription.upsert({
-    where: { endpoint: sub.endpoint },
-    create: { userId: user.id, endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
-    update: { userId: user.id, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
-  });
+
+  const existing = await prisma.pushSubscription.findUnique({ where: { endpoint: sub.endpoint } });
+  // Endpoint đã thuộc user khác -> KHÔNG chiếm (tránh hijack/đổi chủ). Coi như xong, không lộ thông tin.
+  if (existing && existing.userId !== user.id) {
+    return { ok: true };
+  }
+
+  if (existing) {
+    await prisma.pushSubscription.update({
+      where: { endpoint: sub.endpoint },
+      data: { p256dh: sub.keys.p256dh, auth: sub.keys.auth },
+    });
+  } else {
+    await prisma.pushSubscription.create({
+      data: { userId: user.id, endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
+    });
+  }
   return { ok: true };
 }
 
-/** Hủy đăng ký push theo endpoint. */
+/** Hủy đăng ký push theo endpoint — chỉ xóa subscription CỦA CHÍNH user (tránh IDOR). */
 export async function unsubscribePush(endpoint: string): Promise<ActionResult> {
-  await requireUser();
-  await prisma.pushSubscription.deleteMany({ where: { endpoint } });
+  const user = await requireUser();
+  await prisma.pushSubscription.deleteMany({ where: { endpoint, userId: user.id } });
   return { ok: true };
 }

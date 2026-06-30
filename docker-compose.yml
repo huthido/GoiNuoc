@@ -1,0 +1,27 @@
+# Dùng cho Coolify (build pack "Docker Compose") hoặc chạy local: docker compose up --build
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # BẮT BUỘC: sinh bằng `openssl rand -base64 32` và đặt trong Coolify (đừng commit)
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_TRUST_HOST: "true"
+      # DB SQLite nằm trên volume bền (giữ dữ liệu qua các lần deploy)
+      DATABASE_URL: "file:/app/data/prod.db"
+      SEED_ON_FIRST_BOOT: "true"
+    volumes:
+      - goinuoc-data:/app/data
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  goinuoc-data:

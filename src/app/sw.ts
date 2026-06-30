@@ -30,3 +30,35 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+// --- Push notification ---
+self.addEventListener("push", (event) => {
+  let data: { title?: string; body?: string; url?: string } = {};
+  try {
+    data = event.data?.json() ?? {};
+  } catch {
+    data = { body: event.data?.text() };
+  }
+  const title = data.title ?? "Gọi Nước";
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: data.body ?? "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      data: { url: data.url ?? "/" },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data as { url?: string })?.url ?? "/";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if (client.url.includes(url) && "focus" in client) return client.focus();
+      }
+      return self.clients.openWindow(url);
+    }),
+  );
+});

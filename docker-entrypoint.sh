@@ -23,6 +23,21 @@ fi
 # Auth.js sau reverse proxy (Coolify/Traefik)
 export AUTH_TRUST_HOST="${AUTH_TRUST_HOST:-true}"
 
+# --- VAPID keys cho Web Push: dùng env nếu có; nếu không, tự sinh & lưu BỀN ---
+VAPID_FILE="$DATA_DIR/.vapid.json"
+if [ -z "$VAPID_PUBLIC_KEY" ] || [ -z "$VAPID_PRIVATE_KEY" ]; then
+  if [ ! -f "$VAPID_FILE" ]; then
+    node -e "const w=require('web-push');require('fs').writeFileSync(process.argv[1],JSON.stringify(w.generateVAPIDKeys()))" "$VAPID_FILE"
+    echo "[entrypoint] Đã tự sinh VAPID keys và lưu bền vào volume"
+  else
+    echo "[entrypoint] Dùng VAPID keys đã lưu trên volume"
+  fi
+  VAPID_PUBLIC_KEY=$(node -e "console.log(require(process.argv[1]).publicKey)" "$VAPID_FILE")
+  VAPID_PRIVATE_KEY=$(node -e "console.log(require(process.argv[1]).privateKey)" "$VAPID_FILE")
+  export VAPID_PUBLIC_KEY VAPID_PRIVATE_KEY
+fi
+export VAPID_SUBJECT="${VAPID_SUBJECT:-mailto:admin@goinuoc.local}"
+
 echo "[entrypoint] DATABASE_URL=$DATABASE_URL"
 echo "[entrypoint] prisma migrate deploy..."
 npx prisma migrate deploy

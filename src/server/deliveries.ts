@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { assertTransition } from "@/lib/domain/orderStatus";
+import { sendPushToUser } from "@/lib/push";
 import { completeDeliverySchema, type CompleteDeliveryInput } from "@/lib/validators/order";
 import type { OrderStatus } from "@/lib/domain/types";
 import type { ActionResult } from "@/server/orders";
@@ -139,6 +140,12 @@ export async function completeDelivery(input: CompleteDeliveryInput): Promise<Ac
         body: `Đơn ${order.code} đã giao thành công. Cảm ơn bạn!`,
       },
     });
+  });
+
+  await sendPushToUser(order.customerId, {
+    title: "Đơn đã giao",
+    body: `Đơn ${order.code} đã giao thành công. Cảm ơn bạn!`,
+    url: `/orders/${order.code}`,
   });
 
   revalidatePath("/driver");

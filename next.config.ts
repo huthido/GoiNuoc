@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 import withSerwistInit from "@serwist/next";
 
 const nextConfig: NextConfig = {
-  // better-sqlite3 là native addon -> không bundle, để runtime tự require.
-  serverExternalPackages: ["better-sqlite3"],
+  // better-sqlite3 là native addon, web-push dùng node crypto -> để runtime tự require.
+  serverExternalPackages: ["better-sqlite3", "web-push"],
 };
 
 const withSerwist = withSerwistInit({

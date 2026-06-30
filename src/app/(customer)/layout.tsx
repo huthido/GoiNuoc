@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/session";
 import { BottomNav } from "@/components/customer/BottomNav";
 import { LogoutButton } from "@/components/LogoutButton";
+import { PushManager } from "@/components/PushManager";
 
 export default async function CustomerLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser(["CUSTOMER"]);
@@ -18,6 +19,8 @@ export default async function CustomerLayout({ children }: { children: React.Rea
         </Link>
         <LogoutButton className="text-sky-100 hover:text-white" />
       </header>
+
+      <PushManager />
 
       <main className="flex-1">{children}</main>
 

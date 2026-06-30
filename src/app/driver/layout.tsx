@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/session";
 import { LogoutButton } from "@/components/LogoutButton";
+import { PushManager } from "@/components/PushManager";
 
 export default async function DriverLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser(["DRIVER"]);
@@ -17,6 +18,7 @@ export default async function DriverLayout({ children }: { children: React.React
         </Link>
         <LogoutButton className="text-emerald-100 hover:text-white" />
       </header>
+      <PushManager />
       <main className="flex-1">{children}</main>
     </div>
   );

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { assertTransition } from "@/lib/domain/orderStatus";
+import { sendPushToUser } from "@/lib/push";
 import type { OrderStatus } from "@/lib/domain/types";
 import type { ActionResult } from "@/server/orders";
 
@@ -30,6 +31,11 @@ export async function confirmOrder(orderId: string): Promise<ActionResult> {
   await prisma.notification.create({
     data: { userId: order.customerId, type: "ORDER", title: "Đơn đã xác nhận", body: `Đơn ${order.code} đã được xác nhận.` },
   });
+  await sendPushToUser(order.customerId, {
+    title: "Đơn đã xác nhận",
+    body: `Đơn ${order.code} đã được xác nhận và đang chuẩn bị giao.`,
+    url: `/orders/${order.code}`,
+  });
   revalidateOrder(order.code);
   return { ok: true };
 }
@@ -48,6 +54,11 @@ export async function assignDriver(orderId: string, driverId: string): Promise<A
   await prisma.order.update({ where: { id: order.id }, data: { status: "ASSIGNED", assignedDriverId: driver.id } });
   await prisma.notification.create({
     data: { userId: driver.id, type: "DELIVERY", title: "Đơn được phân giao", body: `Bạn được phân giao đơn ${order.code}.` },
+  });
+  await sendPushToUser(driver.id, {
+    title: "Đơn mới cần giao",
+    body: `Bạn được phân giao đơn ${order.code}.`,
+    url: "/driver",
   });
   revalidateOrder(order.code);
   revalidatePath("/driver");

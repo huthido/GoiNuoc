@@ -1,0 +1,4 @@
+# Chuẩn hóa xuống dòng: giữ LF trong repo, để git tự xử lý khi checkout trên Windows.
+* text=auto eol=lf
+*.png binary
+*.db binary

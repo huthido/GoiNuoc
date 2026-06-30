@@ -34,17 +34,18 @@ export function isTerminal(status: OrderStatus): boolean {
   return nextStatuses(status).length === 0;
 }
 
-export function canTransition(from: OrderStatus, to: OrderStatus, role?: Role): boolean {
+export function canTransition(from: OrderStatus, to: OrderStatus, roles?: Role | Role[]): boolean {
   if (!TRANSITIONS[from]?.includes(to)) return false;
-  if (!role) return true; // không xét vai trò
+  if (roles === undefined) return true; // không xét vai trò
   const allowed = ALLOWED_ROLES[`${from}->${to}`];
-  return allowed ? allowed.includes(role) : false;
+  if (!allowed) return false;
+  const list = Array.isArray(roles) ? roles : [roles];
+  return list.some((r) => allowed.includes(r));
 }
 
-export function assertTransition(from: OrderStatus, to: OrderStatus, role?: Role): void {
-  if (!canTransition(from, to, role)) {
-    throw new Error(
-      `Chuyển trạng thái không hợp lệ: ${from} → ${to}${role ? ` (vai trò ${role})` : ""}`,
-    );
+export function assertTransition(from: OrderStatus, to: OrderStatus, roles?: Role | Role[]): void {
+  if (!canTransition(from, to, roles)) {
+    const label = roles ? ` (vai trò ${Array.isArray(roles) ? roles.join("/") : roles})` : "";
+    throw new Error(`Chuyển trạng thái không hợp lệ: ${from} → ${to}${label}`);
   }
 }

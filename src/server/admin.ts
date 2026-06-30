@@ -23,7 +23,7 @@ export async function confirmOrder(orderId: string): Promise<ActionResult> {
   const order = await loadOrder(orderId);
   if (!order) return { ok: false, error: "Không tìm thấy đơn" };
   try {
-    assertTransition(order.status as OrderStatus, "CONFIRMED", user.role);
+    assertTransition(order.status as OrderStatus, "CONFIRMED", user.roles);
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
@@ -44,10 +44,10 @@ export async function assignDriver(orderId: string, driverId: string): Promise<A
   const user = await requireUser(["ADMIN", "STAFF"]);
   const order = await loadOrder(orderId);
   if (!order) return { ok: false, error: "Không tìm thấy đơn" };
-  const driver = await prisma.user.findFirst({ where: { id: driverId, role: "DRIVER", isActive: true } });
+  const driver = await prisma.user.findFirst({ where: { id: driverId, roles: { contains: "DRIVER" }, isActive: true } });
   if (!driver) return { ok: false, error: "Tài xế không hợp lệ" };
   try {
-    assertTransition(order.status as OrderStatus, "ASSIGNED", user.role);
+    assertTransition(order.status as OrderStatus, "ASSIGNED", user.roles);
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
@@ -70,7 +70,7 @@ export async function cancelOrderAdmin(orderId: string): Promise<ActionResult> {
   const order = await loadOrder(orderId);
   if (!order) return { ok: false, error: "Không tìm thấy đơn" };
   try {
-    assertTransition(order.status as OrderStatus, "CANCELLED", user.role);
+    assertTransition(order.status as OrderStatus, "CANCELLED", user.roles);
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

@@ -6,7 +6,7 @@ export const metadata = { title: "Đăng nhập · Gọi Nước" };
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
-  if (user) redirect(homeFor(user.role));
+  if (user) redirect(homeFor(user.roles));
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-sky-50 to-slate-100 p-6">

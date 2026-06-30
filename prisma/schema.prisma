@@ -17,7 +17,7 @@ model User {
   phone            String   @unique
   name             String
   passwordHash     String
-  role             String   @default("CUSTOMER") // CUSTOMER | ADMIN | STAFF | DRIVER
+  roles            String   @default("CUSTOMER") // CSV đa vai trò: CUSTOMER | ADMIN | STAFF | DRIVER
   creditLimit      Int      @default(0) // hạn mức công nợ (VND); 0 = không cho nợ
   debtBalance      Int      @default(0) // công nợ hiện tại (VND)
   emptyBottlesHeld Int      @default(0) // số vỏ bình khách đang giữ

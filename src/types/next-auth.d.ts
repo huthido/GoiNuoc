@@ -3,10 +3,10 @@ import type { Role } from "@/lib/domain/types";
 
 declare module "next-auth" {
   interface Session {
-    user: { id: string; role: Role; phone: string } & DefaultSession["user"];
+    user: { id: string; roles: Role[]; phone: string } & DefaultSession["user"];
   }
   interface User {
-    role: Role;
+    roles: Role[];
     phone: string;
   }
 }
@@ -14,7 +14,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     uid: string;
-    role: Role;
+    roles: Role[];
     phone: string;
   }
 }

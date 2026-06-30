@@ -10,8 +10,8 @@ export default async function AdminDashboard() {
   const [grouped, revenue, debtAgg, bottlesAgg, recent] = await Promise.all([
     prisma.order.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.order.aggregate({ _sum: { total: true }, where: { status: "DELIVERED" } }),
-    prisma.user.aggregate({ _sum: { debtBalance: true }, where: { role: "CUSTOMER" } }),
-    prisma.user.aggregate({ _sum: { emptyBottlesHeld: true }, where: { role: "CUSTOMER" } }),
+    prisma.user.aggregate({ _sum: { debtBalance: true }, where: { roles: { contains: "CUSTOMER" } } }),
+    prisma.user.aggregate({ _sum: { emptyBottlesHeld: true }, where: { roles: { contains: "CUSTOMER" } } }),
     prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 8, include: { customer: true } }),
   ]);
 

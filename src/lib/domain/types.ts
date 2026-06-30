@@ -3,6 +3,22 @@
 export const ROLES = ["CUSTOMER", "ADMIN", "STAFF", "DRIVER"] as const;
 export type Role = (typeof ROLES)[number];
 
+// Đa vai trò: lưu CSV trong User.roles (SQLite không có array/enum). Token role đều là duy nhất nên không trùng substring.
+export function parseRoles(csv: string | null | undefined): Role[] {
+  if (!csv) return [];
+  const set = new Set(csv.split(",").map((s) => s.trim()));
+  return ROLES.filter((r) => set.has(r));
+}
+
+export function rolesToCsv(roles: Role[]): string {
+  const set = new Set(roles);
+  return ROLES.filter((r) => set.has(r)).join(",");
+}
+
+export function hasAnyRole(userRoles: Role[], allowed: Role[]): boolean {
+  return userRoles.some((r) => allowed.includes(r));
+}
+
 export const ORDER_STATUSES = [
   "PENDING",
   "CONFIRMED",

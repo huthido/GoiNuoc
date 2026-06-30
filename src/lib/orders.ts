@@ -87,7 +87,7 @@ export async function createOrderForCustomer(input: CreateOrderInput): Promise<C
 
   if (input.notifyAdmins !== false) {
     const admins = await prisma.user.findMany({
-      where: { role: { in: ["ADMIN", "STAFF"] } },
+      where: { OR: [{ roles: { contains: "ADMIN" } }, { roles: { contains: "STAFF" } }] },
       select: { id: true },
     });
     if (admins.length) {

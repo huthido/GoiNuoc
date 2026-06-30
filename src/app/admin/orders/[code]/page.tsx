@@ -15,7 +15,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ c
       where: { code },
       include: { items: true, address: { include: { zone: true } }, customer: true, driver: true },
     }),
-    prisma.user.findMany({ where: { role: "DRIVER", isActive: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.user.findMany({ where: { roles: { contains: "DRIVER" }, isActive: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
   if (!order) notFound();
 

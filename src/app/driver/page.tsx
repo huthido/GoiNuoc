@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, ChevronRight, PackageCheck } from "lucide-react";
+import { MapPin, ChevronRight, PackageCheck, UserPlus } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { formatVND } from "@/lib/format";
@@ -34,6 +34,13 @@ export default async function DriverHome() {
           <PackageCheck className="h-4 w-4" /> Đã giao {deliveredToday}
         </span>
       </div>
+
+      <Link
+        href="/driver/new-customer"
+        className="flex items-center justify-center gap-1.5 rounded-2xl border border-dashed border-emerald-300 bg-white py-2.5 text-sm font-semibold text-emerald-700"
+      >
+        <UserPlus className="h-4 w-4" /> Thêm khách mới
+      </Link>
 
       {orders.length === 0 ? (
         <p className="rounded-2xl bg-white p-8 text-center text-gray-400 shadow-sm">

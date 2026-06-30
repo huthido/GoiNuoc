@@ -1,18 +1,25 @@
 import { prisma } from "@/lib/db";
 import { formatVND } from "@/lib/format";
+import { CustomerCreate } from "@/components/CustomerCreate";
 
 export const metadata = { title: "Khách hàng · Quản trị" };
 
 export default async function AdminCustomersPage() {
-  const customers = await prisma.user.findMany({
-    where: { role: "CUSTOMER" },
-    orderBy: { name: "asc" },
-    include: { _count: { select: { orders: true } } },
-  });
+  const [customers, zones] = await Promise.all([
+    prisma.user.findMany({
+      where: { roles: { contains: "CUSTOMER" } },
+      orderBy: { name: "asc" },
+      include: { _count: { select: { orders: true } } },
+    }),
+    prisma.zone.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+  ]);
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold text-gray-900">Khách hàng</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold text-gray-900">Khách hàng</h1>
+      </div>
+      <CustomerCreate zones={zones} />
       <div className="overflow-hidden rounded-xl bg-white shadow-sm">
         <div className="divide-y">
           {customers.map((c) => (

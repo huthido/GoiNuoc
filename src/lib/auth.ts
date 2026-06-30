@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
-import type { Role } from "@/lib/domain/types";
+import { parseRoles, type Role } from "@/lib/domain/types";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
@@ -23,16 +23,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user || !user.isActive) return null;
         if (!bcrypt.compareSync(password, user.passwordHash)) return null;
 
-        return { id: user.id, name: user.name, role: user.role as Role, phone: user.phone };
+        return { id: user.id, name: user.name, roles: parseRoles(user.roles), phone: user.phone };
       },
     }),
   ],
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        const u = user as { id: string; role: Role; phone: string };
+        const u = user as { id: string; roles: Role[]; phone: string };
         token.uid = u.id;
-        token.role = u.role;
+        token.roles = u.roles;
         token.phone = u.phone;
       }
       return token;
@@ -40,7 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, token }) {
       if (session.user) {
         session.user.id = token.uid as string;
-        session.user.role = token.role as Role;
+        session.user.roles = (token.roles as Role[]) ?? [];
         session.user.phone = token.phone as string;
       }
       return session;

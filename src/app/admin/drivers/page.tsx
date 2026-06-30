@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 export const metadata = { title: "Tài xế · Quản trị" };
 
 export default async function AdminDriversPage() {
-  const drivers = await prisma.user.findMany({ where: { role: "DRIVER" }, orderBy: { name: "asc" } });
+  const drivers = await prisma.user.findMany({ where: { roles: { contains: "DRIVER" } }, orderBy: { name: "asc" } });
   const active = await prisma.order.groupBy({
     by: ["assignedDriverId"],
     where: { status: { in: ["ASSIGNED", "DELIVERING"] } },

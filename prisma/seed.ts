@@ -58,16 +58,20 @@ async function main() {
 
   // --- Nhân sự ---
   const admin = await prisma.user.create({
-    data: { phone: "0900000001", name: "Quản trị viên", passwordHash, role: "ADMIN" },
+    data: { phone: "0900000001", name: "Quản trị viên", passwordHash, roles: "ADMIN" },
   });
   const staff = await prisma.user.create({
-    data: { phone: "0900000002", name: "Nhân viên CSKH", passwordHash, role: "STAFF" },
+    data: { phone: "0900000002", name: "Nhân viên CSKH", passwordHash, roles: "STAFF" },
   });
   const driverHung = await prisma.user.create({
-    data: { phone: "0900000011", name: "Tài xế Hùng", passwordHash, role: "DRIVER" },
+    data: { phone: "0900000011", name: "Tài xế Hùng", passwordHash, roles: "DRIVER" },
   });
   const driverKhoa = await prisma.user.create({
-    data: { phone: "0900000012", name: "Tài xế Khoa", passwordHash, role: "DRIVER" },
+    data: { phone: "0900000012", name: "Tài xế Khoa", passwordHash, roles: "DRIVER" },
+  });
+  // Tài khoản đa vai trò: vừa quản trị vừa tài xế.
+  await prisma.user.create({
+    data: { phone: "0900000003", name: "Quản lý kiêm Tài xế", passwordHash, roles: "ADMIN,DRIVER" },
   });
 
   // --- Khách hàng + địa chỉ ---
@@ -84,7 +88,7 @@ async function main() {
         phone: opts.phone,
         name: opts.name,
         passwordHash,
-        role: "CUSTOMER",
+        roles: "CUSTOMER",
         creditLimit: opts.creditLimit ?? 0,
       },
     });
@@ -275,6 +279,7 @@ async function main() {
   console.log("\n— Tài khoản demo (mật khẩu: 123456) —");
   console.log("  Admin   : 0900000001");
   console.log("  Nhân viên: 0900000002");
+  console.log("  Admin+Tài xế: 0900000003 (đa vai trò)");
   console.log("  Tài xế  : 0900000011 (Hùng), 0900000012 (Khoa)");
   console.log("  Khách   : 0911111111 (An), 0922222222 (VP ABC, có công nợ), 0944444444 (Cà phê)");
 }

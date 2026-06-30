@@ -1,4 +1,7 @@
-# Dùng cho Coolify (build pack "Docker Compose") hoặc chạy local: docker compose up --build
+# Dùng cho Coolify (build pack "Docker Compose") — ZERO CONFIG:
+#  • Volume bền `goinuoc-data` được Coolify TỰ TẠO & giữ qua các lần deploy.
+#  • AUTH_SECRET TỰ SINH trong entrypoint (lưu bền trên volume) — không cần đặt tay.
+# Chạy local: docker compose up --build  (mở http://localhost:3000)
 services:
   app:
     build:
@@ -6,12 +9,12 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      # BẮT BUỘC: sinh bằng `openssl rand -base64 32` và đặt trong Coolify (đừng commit)
-      AUTH_SECRET: ${AUTH_SECRET}
       AUTH_TRUST_HOST: "true"
-      # DB SQLite nằm trên volume bền (giữ dữ liệu qua các lần deploy)
+      # DB SQLite nằm trên volume bền
       DATABASE_URL: "file:/app/data/prod.db"
       SEED_ON_FIRST_BOOT: "true"
+      # AUTH_SECRET: để TRỐNG -> entrypoint tự sinh & lưu bền. Chỉ set nếu muốn tự quản.
+      AUTH_SECRET: ${AUTH_SECRET:-}
     volumes:
       - goinuoc-data:/app/data
     ports:

@@ -52,3 +52,5 @@ next-env.d.ts
 
 # claude skeleton sidecars
 *.from-skeleton
+
+/src/generated/prisma

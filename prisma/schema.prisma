@@ -1,0 +1,174 @@
+// Gọi Nước — schema Prisma (SQLite).
+// LƯU Ý: SQLite không hỗ trợ enum → trạng thái lưu String (giá trị hợp lệ ghi ở comment + ràng buộc ở lib/domain & Zod).
+// Tiền: integer VND.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  // Prisma 7: URL cấu hình ở prisma.config.ts (CLI) + driver adapter ở runtime (lib/db.ts).
+}
+
+model User {
+  id               String   @id @default(cuid())
+  phone            String   @unique
+  name             String
+  passwordHash     String
+  role             String   @default("CUSTOMER") // CUSTOMER | ADMIN | STAFF | DRIVER
+  creditLimit      Int      @default(0) // hạn mức công nợ (VND); 0 = không cho nợ
+  debtBalance      Int      @default(0) // công nợ hiện tại (VND)
+  emptyBottlesHeld Int      @default(0) // số vỏ bình khách đang giữ
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  addresses         Address[]
+  orders            Order[]            @relation("CustomerOrders")
+  deliveries        Order[]            @relation("DriverOrders")
+  bottleTxns        BottleTxn[]
+  notifications     Notification[]
+  subscriptions     Subscription[]
+  pushSubscriptions PushSubscription[]
+}
+
+model Zone {
+  id                String    @id @default(cuid())
+  name              String
+  shippingFee       Int       @default(0) // VND
+  freeShipThreshold Int       @default(0) // VND; 0 = không có ngưỡng miễn phí
+  addresses         Address[]
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String  @default("Nhà")
+  line      String
+  ward      String?
+  district  String?
+  city      String?
+  zoneId    String?
+  zone      Zone?   @relation(fields: [zoneId], references: [id])
+  isDefault Boolean @default(false)
+  orders    Order[]
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  sku          String   @unique
+  name         String
+  type         String   @default("BINH_20L") // BINH_20L | THUNG_CHAI | CHAI_LE | KHAC
+  unit         String   @default("bình")
+  price        Int // VND
+  depositPrice Int      @default(0) // cọc vỏ (VND), chỉ với hàng tuần hoàn
+  isReturnable Boolean  @default(false) // có vỏ tuần hoàn không
+  imageUrl     String?
+  description  String?
+  stock        Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  orderItems    OrderItem[]
+  subscriptions Subscription[]
+}
+
+model Order {
+  id               String    @id @default(cuid())
+  code             String    @unique
+  customerId       String
+  customer         User      @relation("CustomerOrders", fields: [customerId], references: [id])
+  addressId        String?
+  address          Address?  @relation(fields: [addressId], references: [id])
+  status           String    @default("PENDING") // PENDING|CONFIRMED|ASSIGNED|DELIVERING|DELIVERED|CANCELLED|FAILED
+  paymentMethod    String    @default("COD") // COD | BANK | DEBT
+  paymentStatus    String    @default("UNPAID") // UNPAID | PAID | DEBT
+  subtotal         Int       @default(0)
+  shippingFee      Int       @default(0)
+  depositTotal     Int       @default(0)
+  discount         Int       @default(0)
+  total            Int       @default(0)
+  note             String?
+  scheduledAt      DateTime?
+  assignedDriverId String?
+  driver           User?     @relation("DriverOrders", fields: [assignedDriverId], references: [id])
+  confirmedAt      DateTime?
+  deliveredAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  items      OrderItem[]
+  bottleTxns BottleTxn[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([assignedDriverId])
+}
+
+model OrderItem {
+  id              String  @id @default(cuid())
+  orderId         String
+  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product @relation(fields: [productId], references: [id])
+  nameSnapshot    String
+  unitPrice       Int
+  depositPrice    Int     @default(0)
+  qty             Int
+  returnedEmpties Int     @default(0) // số vỏ rỗng khách trả lại cho dòng hàng này
+  lineTotal       Int
+}
+
+model BottleTxn {
+  id            String   @id @default(cuid())
+  customerId    String
+  customer      User     @relation(fields: [customerId], references: [id])
+  orderId       String?
+  order         Order?   @relation(fields: [orderId], references: [id])
+  deliveredFull Int      @default(0) // số bình đầy giao đi
+  returnedEmpty Int      @default(0) // số vỏ rỗng thu về
+  balanceAfter  Int // số vỏ khách giữ sau giao dịch
+  note          String?
+  createdAt     DateTime @default(now())
+
+  @@index([customerId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   @default("ORDER")
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Subscription {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   User      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id])
+  qty        Int       @default(1)
+  frequency  String    @default("WEEKLY") // WEEKLY | BIWEEKLY | MONTHLY
+  addressId  String?
+  nextRunAt  DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+}
